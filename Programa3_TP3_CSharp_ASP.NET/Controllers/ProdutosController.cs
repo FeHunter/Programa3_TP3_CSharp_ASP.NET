@@ -22,7 +22,8 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
         // GET: Produtos
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Produtos.ToListAsync());
+            var contexto = _context.Produtos.Include(p => p.Categoria);
+            return View(await contexto.ToListAsync());
         }
 
         // GET: Produtos/Details/5
@@ -34,6 +35,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
             }
 
             var produto = await _context.Produtos
+                .Include(p => p.Categoria)
                 .FirstOrDefaultAsync(m => m.ProdutoId == id);
             if (produto == null)
             {
@@ -46,6 +48,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
         // GET: Produtos/Create
         public IActionResult Create()
         {
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "CategoriaId");
             return View();
         }
 
@@ -54,7 +57,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProdutoId,Nome,Preco")] Produto produto)
+        public async Task<IActionResult> Create([Bind("ProdutoId,Nome,Preco,CategoriaId")] Produto produto)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +65,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "CategoriaId", produto.CategoriaId);
             return View(produto);
         }
 
@@ -78,6 +82,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
             {
                 return NotFound();
             }
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "CategoriaId", produto.CategoriaId);
             return View(produto);
         }
 
@@ -86,7 +91,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProdutoId,Nome,Preco")] Produto produto)
+        public async Task<IActionResult> Edit(int id, [Bind("ProdutoId,Nome,Preco,CategoriaId")] Produto produto)
         {
             if (id != produto.ProdutoId)
             {
@@ -113,6 +118,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "CategoriaId", produto.CategoriaId);
             return View(produto);
         }
 
@@ -125,6 +131,7 @@ namespace Programa3_TP3_CSharp_ASP.NET.Controllers
             }
 
             var produto = await _context.Produtos
+                .Include(p => p.Categoria)
                 .FirstOrDefaultAsync(m => m.ProdutoId == id);
             if (produto == null)
             {
